@@ -36,3 +36,12 @@ export interface Project {
     versions: Version[];
     current_version_index: string;
 }
+
+export interface PricingPlan {
+    id: string;
+    name: string;
+    price: string;
+    credits: number;
+    description: string;
+    features: string[];
+}
