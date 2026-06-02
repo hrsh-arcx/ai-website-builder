@@ -72,8 +72,8 @@ const MyProjects = () => {
                       <div onClick={(e)=>{e.stopPropagation();}} className='flex items-center justify-between mt-4 py-2 px-3'>
                         <span className='text-white text-xs'>{new Date(project.createdAt).toLocaleDateString()}</span>
                         <div className='flex items-center gap-2'>
-                          <button onClick={()=>navigate(`/preview/${project.id}`)} className='px-2.5 py-0.5 text-sm bg-gray-700 border border-gray-600 rounded-full'>Preview</button>
-                          <button onClick={()=>navigate(`/projects/${project.id}`)} className='px-2.5 py-0.5 text-sm bg-gray-700 border border-gray-600 rounded-full'>Open</button>
+                          <button onClick={()=>navigate(`/preview/${project.id}`)} className='px-2.5 py-0.5 text-sm bg-gray-700 border border-gray-600 rounded-lg'>Preview</button>
+                          <button onClick={()=>navigate(`/projects/${project.id}`)} className='px-2.5 py-0.5 text-sm bg-gray-700 border border-gray-600 rounded-lg'>Open</button>
                         </div>
                       </div>
                   </div>
