@@ -12,7 +12,7 @@ const Community = () => {
   
   const fetchProjects = async () => {
     setProjects(dummyProjects)
-    
+
     setTimeout(()=>{
       setLoading(false)
     },1000)
@@ -37,9 +37,6 @@ const Community = () => {
           <div className='py-10 min-h-[80vh]'>
             <div className='flex items-center justify-between mb-6'>
               <h1 className='text-white font-medium text-2xl'>Published Projects</h1>
-              <button className='flex items-center gap-2 bg-gradient-to-r from-[#CB52D4] to-indigo-600 rounded-md px-4 py-2 mt-4 hover:scale-105 transition-transform duration-200' onClick={()=>navigate('/')}>
-                <PlusIcon size={18} />Create New
-              </button>
             </div>
 
             <div className='flex flex-wrap gap-3.5'>
