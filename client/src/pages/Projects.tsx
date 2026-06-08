@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { dummyConversations, dummyProjects, dummyVersion } from '../assets/assets';
-import type { Project } from '../types';
+import type {Project} from '../types';
 import { ArrowBigDownDash, EyeIcon, EyeOffIcon, FullscreenIcon, LaptopIcon, Loader2Icon, MessageSquareIcon, SaveIcon, SmartphoneIcon, TabletIcon, XIcon } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
-import ProjectPreview from '../components/ProjectPreview';
+import ProjectPreview, { type ProjectPreviewRef } from '../components/ProjectPreview';
 
 const Projects = () => {
   const { projectId } = useParams();
@@ -18,27 +18,30 @@ const Projects = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const showEditorPanel = true;
+
+  const previewRef = useRef<ProjectPreviewRef>(null);
 
   const fetchProject = async () => {
     const project = dummyProjects.find((project) => project.id === projectId);
     setTimeout(() => {
       if(project){
-        setProject({...project, conversation: dummyConversations, versions:dummyVersion});
+        setProject({...project, conversation:dummyConversations, versions:dummyVersion});
         setIsGenerating(project.current_code ? false : true);
       }
       setLoading(false);
     }, 1200);
   }
 
-  const togglePublish = async (params:type) => {
+  const togglePublish = async () => {
     
   }
 
-  const saveFIle = async (params:type) => {
+  const saveFIle = async () => {
     
   }
 
-  const downloadFile = (params:type) => {
+  const downloadFile = () => {
     
   }
 
@@ -102,7 +105,7 @@ const Projects = () => {
             <Sidebar isMenuOpen={isMenuOpen} project={project} setProject={setProject} isGenerating={isGenerating} setIsGenerating={setIsGenerating}/>
           </div>
           <div className='flex-1 p-2 pl-0'>
-            <ProjectPreview />
+            <ProjectPreview ref={previewRef} project={project} isGenerating={isGenerating} device={device} showEditorPanel={showEditorPanel}/>
           </div>
         </div>
       </div>
