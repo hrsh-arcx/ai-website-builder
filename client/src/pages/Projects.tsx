@@ -18,7 +18,7 @@ const Projects = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const showEditorPanel = true;
+  let showEditorPanel = true;
 
   const previewRef = useRef<ProjectPreviewRef>(null);
 
