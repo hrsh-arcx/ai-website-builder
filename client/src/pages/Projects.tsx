@@ -42,7 +42,22 @@ const Projects = () => {
   }
 
   const downloadFile = () => {
+    const code = previewRef.current?.getCode() || project?.current_code;
+    if(!code){
+      alert('No code to download!');
+      return;
+    }
+
+    const blob = new Blob([code], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = 'index.html';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
     
+    document.body.removeChild(downloadLink);
   }
 
   useEffect(() => {

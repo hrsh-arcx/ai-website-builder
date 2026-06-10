@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import type { Project } from '../types'
 import { iframeScript } from '../assets/assets';
 import EditorPanel from './EditorPanel';
@@ -17,6 +17,42 @@ const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({proj
 
   const iframeRef = useRef<HTMLIFrameElement>(null); 
   const [selectedElement, setSelectedElement] = useState<any>(null);
+
+    useImperativeHandle(ref, () => ({
+        getCode: () => {
+            const doc = iframeRef.current?.contentDocument;
+            if(!doc) return undefined;
+
+            doc.querySelectorAll('.ai-selected-element,[data-ai-selected]').forEach((el)=>{
+                el.classList.remove('ai-selected-element');
+                el.removeAttribute('data-ai-selected');
+                (el as HTMLElement).style.outline = '';
+            })
+
+            const previewStyle = doc.getElementById('ai-preview-style');
+            const previewScript = doc.getElementById('ai-preview-script');
+
+            if(previewStyle) previewStyle.remove();
+            if(previewScript) previewScript.remove();
+
+            let cleanHtml = doc.body.outerHTML;
+
+            if (!cleanHtml.includes('cdn.tailwindcss.com')) {
+                const tailwindCDN = '<script src="https://cdn.tailwindcss.com"></script>';
+                
+                if (cleanHtml.includes('<head>')) {
+                    cleanHtml = cleanHtml.replace('<head>', `<head>\n    ${tailwindCDN}`);
+                } else if (cleanHtml.includes('<html>')) {
+                    cleanHtml = cleanHtml.replace('<html>', `<html>\n<head>\n    ${tailwindCDN}\n</head>`);
+                } else {
+                    cleanHtml = `<head>\n    ${tailwindCDN}\n</head>\n` + cleanHtml;
+                }
+            }
+
+            return cleanHtml;
+        }
+    }))
+
   const injectPreview = (html:string)=>{
     if(!html) return '';
     if(!showEditorPanel) return html;
