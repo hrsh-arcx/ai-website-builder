@@ -41,7 +41,7 @@ const Community = () => {
 
             <div className='flex flex-wrap gap-3.5'>
               {projects.map((project)=>(
-                <div key={project.id} onClick={()=>navigate(`/preview/${project.id}`)} className='relative group w-72 max-sm:mx-auto cursor-pointer rounded-lg overflow-hidden bg-gray-900/60 border border-gray-700 group shadow-md flex-col hover:shadow-indigo-700/30 hover:border indigo-800/80 transition-all duration-200'>
+                <div key={project.id} onClick={()=>navigate(`/view/${project.id}`)} className='relative group w-72 max-sm:mx-auto cursor-pointer rounded-lg overflow-hidden bg-gray-900/60 border border-gray-700 group shadow-md flex-col hover:shadow-indigo-700/30 hover:border indigo-800/80 transition-all duration-200'>
                   {/*Desktop Preview*/}
                   <div className='relative w-full h-40 overflow-hidden bg-gray-800 border-b border-gray-700'>
                     {project.current_code ? (
