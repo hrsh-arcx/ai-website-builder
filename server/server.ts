@@ -4,11 +4,15 @@ import cors from "cors";
 
 const app = express();
 
+const corsOptions = {
+    origin : process.env.TRUSTED_ORIINS?.split(',') || [],
+    credentials : true
+}
 // Middleware
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json());
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Server is Live! Hooray');
