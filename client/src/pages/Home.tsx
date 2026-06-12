@@ -18,7 +18,6 @@ const Home = () => {
   }
   return (
       <section className="flex flex-col items-center text-white text-sm pb-20 px-4 font-poppins">
-
         <a href="https://prebuiltui.com" className="flex items-center gap-2 border border-slate-700 rounded-full p-1 pr-3 text-sm mt-20">
           <span className="bg-indigo-600 text-xs px-3 py-1 rounded-full">NEW</span>
           <p className="flex items-center gap-2">

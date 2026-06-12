@@ -7,13 +7,13 @@ import { auth } from "./lib/auth.js";
 const app = express();
 
 const corsOptions = {
-    origin : process.env.TRUSTED_ORIGINS?.split(',') || [],
-    credentials : true
-}
-// Middleware
-app.use(cors(corsOptions))
-app.use(express.json());
+    origin: process.env.TRUSTED_ORIGINS,
+    credentials: true
+};
 
+// 1. Middleware MUST go first
+app.use(cors(corsOptions));
+app.use(express.json());
 app.all('/api/auth/{*any}', toNodeHandler(auth));
 
 const port = process.env.PORT;
