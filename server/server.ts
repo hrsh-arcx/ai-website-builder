@@ -3,6 +3,8 @@ import express, { Request, Response } from 'express';
 import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
+import UserRouter from "./routes/UserRoutes.js";
+import ProjectRouter from "./routes/ProjectRoutes.js";
 
 const app = express();
 
@@ -13,8 +15,11 @@ const corsOptions = {
 
 // 1. Middleware MUST go first
 app.use(cors(corsOptions));
-app.use(express.json());
-app.all('/api/auth/{*any}', toNodeHandler(auth));
+app.use(express.json({limit:'50mb'}));
+app.use('/api/auth', toNodeHandler(auth));
+
+app.use('/api/user', UserRouter);
+app.use('/api/project', ProjectRouter);
 
 const port = process.env.PORT;
 

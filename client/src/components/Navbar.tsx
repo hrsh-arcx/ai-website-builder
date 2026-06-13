@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSession, signOut } from '../lib/auth-client';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -12,6 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import api from '../config/axios';
+import {toast} from 'sonner';
 
 interface NavbarProps {
   onOpenAuth: (view: 'signin' | 'signup') => void;
@@ -28,6 +30,24 @@ const Navbar = ({ onOpenAuth }: NavbarProps) => {
     await signOut();
     navigate('/');
   };
+
+  const [credits, setCredits] = useState(0);
+  const getCredits = async () => {
+    try{
+      const {data} = await api.get('/api/user/credits');
+      setCredits(data.credits);
+    }
+    catch(error){
+      toast.error('Failed to fetch credits');
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    if(session?.user){
+      getCredits();
+    }
+  },[session?.user]);
 
   return (
     <>
@@ -55,6 +75,10 @@ const Navbar = ({ onOpenAuth }: NavbarProps) => {
           {/* Conditional Auth Button / Avatar Dropdown */}
           {!isPending && (
             session?.user ? (
+              <>
+              <button className='bg-white/10 px-5 py-1.5 text-xs sm:text-sm border text-gray-200 rounded-full'>
+              Credits : <span className='text-indigo-300'>{credits}</span>
+              </button>
               <DropdownMenu>
                 <DropdownMenuTrigger className="rounded-full outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all">
                   <Avatar className="h-9 w-9 border border-slate-700">
@@ -115,6 +139,7 @@ const Navbar = ({ onOpenAuth }: NavbarProps) => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </>
             ) : (
               <button 
                 onClick={() => onOpenAuth('signin')} 
