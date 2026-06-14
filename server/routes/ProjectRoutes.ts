@@ -8,7 +8,7 @@ ProjectRouter.post('/revision/:projectId',protect, makeRevision);
 ProjectRouter.put('/save/:projectId',protect, saveProjectCode);
 ProjectRouter.delete('/delete/:projectId',protect, deleteProject);
 ProjectRouter.get('/rollback/:projectId/:versionId',protect, rollbackVersion);
-ProjectRouter.get('/published',protect, getPublishedProjects);
+ProjectRouter.get('/published', getPublishedProjects);
 ProjectRouter.get('/published/:projectId',protect, getPublishedProject);
 ProjectRouter.get('/preview/:projectId',protect, getProjectCode);
 
