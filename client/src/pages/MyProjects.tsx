@@ -2,29 +2,50 @@ import { useEffect, useState } from 'react'
 import type { Project } from '../types'
 import { Loader2Icon, PlusIcon, TrashIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { dummyProjects } from '../assets/assets'
 import Footer from '../components/Footer'
+import api from '../config/axios'
+import { toast } from 'sonner'
+import { useSession } from '../lib/auth-client'
 
 const MyProjects = () => {
   const [loading, setLoading] = useState(true)
   const [projects, setProjects] = useState<Project[]>([])
   const navigate = useNavigate();
-  
+  const {data:session, isPending} = useSession()
   const fetchProjects = async () => {
-    setProjects(dummyProjects)
-
-    setTimeout(()=>{
-      setLoading(false)
-    },1000)
+    try {
+      const {data} = await api.get(`/api/user/projects`);
+      if(data){
+        setProjects(data);
+        setLoading(false)
+      }
+    } catch (error:any) {
+      toast.error(error.message);
+      console.log(error);
+    }
   }
 
   const DeleteProject = (projectId: string) => {
-    setProjects((prevProjects) => prevProjects.filter((project) => project.id !== projectId));
+    try {
+      const confirm = window.confirm('Are you sure you want to delete this project?');
+      if(!confirm) return;
+      api.delete(`/api/project/delete/${projectId}`);
+      toast.success('Project deleted successfully.');
+      fetchProjects();
+    } catch (error:any) {
+      toast.error(error);
+      console.log(error);
+    }
   }
 
   useEffect(()=>{
-    fetchProjects();
-  },[])
+    if(session?.user && !isPending)
+      fetchProjects();
+    else if(!session?.user && !isPending){
+      navigate('/');
+      toast.error('Please sign in to view your projects.');
+    }
+  },[session?.user])
 
   return (
     <>
@@ -77,7 +98,7 @@ const MyProjects = () => {
                         </div>
                       </div>
                   </div>
-                  <div onClick={(e)=>{e.stopPropagation();}} className='absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none'>
+                  <div onClick={(e)=>{e.stopPropagation()}} className='absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto'>
                     <TrashIcon onClick={()=>DeleteProject(project.id)} size={20} className='absolute top-2 right-2 text-gray-300 hover:text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200'/>
                   </div>
                 </div>

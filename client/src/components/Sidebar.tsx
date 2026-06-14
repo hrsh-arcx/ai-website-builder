@@ -1,7 +1,9 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { Message, Project, Version } from '../types'
 import { BotIcon, EyeIcon, Loader2Icon, SendIcon, UserIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import api from '../config/axios';
 
 interface SidebarProps{
     isMenuOpen : boolean,
@@ -15,15 +17,54 @@ const Sidebar = ({isMenuOpen,project,setProject,isGenerating,setIsGenerating} : 
     const messageRef = useRef<HTMLDivElement>(null);
 
     const [input, setInput ] = useState('');
+
+    const fetchProject = async () => {
+        try {
+            const {data} = await api.get(`/api/user/project/${project.id}`);
+            if (data && data.project) {
+                setProject(data.project);
+            }
+        } catch (error:any) {
+            toast.error(error.response?.data?.message || error.message);
+            console.log(error);
+        }
+    }
     const handleRollback = async (versionId :string) => {
-        
+        try{
+            const confirm = window.confirm('Are you sure you want to rollback to this version?');
+            if(!confirm) return;
+            setIsGenerating(true);
+
+            const {data} = await api.get(`/api/project/rollback/${project.id}/${versionId}`);
+            fetchProject();
+            toast.success(data.message);
+            setIsGenerating(false);
+        } catch(error:any){
+            setIsGenerating(false);
+            toast.error(error.response?.data?.message || error.message);
+            console.log(error);
+        }
     }
     const handleRevision = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsGenerating(true);
-        setTimeout(() => {
+        let interval : number|undefined;
+        try {
+            setIsGenerating(true);
+            interval = setInterval(() => {
+                fetchProject();
+            },10000)
+            const {data} = await api.post(`/api/project/revision/${project.id}`,{requestedChange:input});
+            fetchProject();
+            toast.success(data.message);
+            setInput('');
+            clearInterval(interval);
             setIsGenerating(false);
-        },3000);
+        } catch (error:any) {
+            setIsGenerating(false);
+            toast.error(error.response?.data?.message || error.message);
+            console.log(error);
+            clearInterval(interval);
+        }
     }
 
     useEffect(()=>{
@@ -68,7 +109,7 @@ const Sidebar = ({isMenuOpen,project,setProject,isGenerating,setIsGenerating} : 
                                 <div className='text-xs font-medium'>
                                     code updated <br />
                                     <span className='text-gray-500 text-xs font-normal'>
-                                        new Date(ver.timestamp).toLocaleString()
+                                        {new Date(ver.timestamp).toLocaleString()}
                                     </span>
                                 </ div>
                                 <div>
@@ -81,7 +122,7 @@ const Sidebar = ({isMenuOpen,project,setProject,isGenerating,setIsGenerating} : 
                                             Rollback to this version
                                         </button>
                                     )}
-                                    <Link target='_blank' to='/preview/${project.id}/${ver.id}'>
+                                    <Link target='_blank' to={`/preview/${project.id}/${ver.id}`}>
                                         <EyeIcon className='size-6 p-1 bg-gray-700 hover:bg-indigo-500 transition-colors rounded'/>
                                     </Link>
                                 </div>

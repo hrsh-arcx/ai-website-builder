@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { dummyConversations, dummyProjects, dummyVersion } from '../assets/assets';
 import type {Project} from '../types';
 import { ArrowBigDownDash, EyeIcon, EyeOffIcon, FullscreenIcon, LaptopIcon, Loader2Icon, MessageSquareIcon, SaveIcon, SmartphoneIcon, TabletIcon, XIcon } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import ProjectPreview, { type ProjectPreviewRef } from '../components/ProjectPreview';
+import api from '../config/axios';
+import { useSession } from '../lib/auth-client';
+import { toast } from 'sonner';
 
 const Projects = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
+
+  const { data: session, isPending } = useSession();
 
   const [project, setProject] = useState<Project | null>(null);
   const [device, setDevice] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
@@ -18,27 +22,59 @@ const Projects = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  let showEditorPanel = true;
+  const showEditorPanel = true;
 
   const previewRef = useRef<ProjectPreviewRef>(null);
 
   const fetchProject = async () => {
-    const project = dummyProjects.find((project) => project.id === projectId);
-    setTimeout(() => {
-      if(project){
-        setProject({...project, conversation:dummyConversations, versions:dummyVersion});
-        setIsGenerating(project.current_code ? false : true);
+    try {
+      const {data} = await api.get(`/api/user/project/${projectId}`);
+      if(data){
+        setProject(data);
+        setIsGenerating(data.current_code ? false : true)
+        setLoading(false)
       }
-      setLoading(false);
-    }, 1200);
+    } catch (error:any) {
+      toast.error(error.message);
+      console.log(error);
+    }
   }
 
   const togglePublish = async () => {
-    
+    if(!previewRef.current) return;
+    const code = previewRef.current.getCode();
+    if(!code){
+      toast.error('No code to publish!');
+      return;
+    };
+    try {
+      const {data} = await api.get(`/api/user/publish-toggle/${projectId}`);
+      toast.success(data.message);
+      setProject((prev)=> prev?({...prev, isPublished : !prev.isPublished}):null);
+      setIsPublishing((prev)=> !prev);
+    } catch (error:any) {
+      toast.error(error.response?.data?.message || error.message);
+      console.log(error);
+    }
   }
 
   const saveFIle = async () => {
-    
+    if(!previewRef.current) return;
+    const code = previewRef.current.getCode();
+    if(!code){
+      toast.error('No code to save!');
+      return;
+    };
+    setIsSaving(true);
+    try {
+      const {data} = await api.put(`/api/project/save/${project?.id}`,{code : code});
+      toast.success(data.message);
+    } catch (error:any) {
+      toast.error(error.response?.data?.message || error.message);
+      console.log(error);
+    }finally{
+      setIsSaving(false);
+    }
   }
 
   const downloadFile = () => {
@@ -61,8 +97,27 @@ const Projects = () => {
   }
 
   useEffect(() => {
-    fetchProject();
-  },[])
+    if(session?.user){
+      fetchProject();
+    }else if(!isPending && !session?.user){
+      navigate('/')
+      toast.error('Please sign in to view your projects.');
+    }
+  },[session?.user])
+
+
+  useEffect(() => {
+    if(project && !project.current_code){
+      const intervalId = setInterval(fetchProject,10000);
+      return () => clearInterval(intervalId);
+    }
+    if(project?.isPublished){
+      setIsPublishing(true);
+    }
+    else{
+      setIsPublishing(false);
+    }
+  },[project])
 
   if(loading){
     return (

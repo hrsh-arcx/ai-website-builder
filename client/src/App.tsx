@@ -11,6 +11,7 @@ import Navbar from './components/Navbar'
 import AuthModal from './components/AuthModal'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
+import { Toaster } from 'sonner'
 
 const App = () => {
   const {pathname} = useLocation();
@@ -28,6 +29,7 @@ const App = () => {
   return (
     <div>
       {!hideNavbar && <Navbar onOpenAuth={openAuth} />}
+      <Toaster />
       <Routes>
         <Route path="/" element={<Home />}/>
         <Route path="/projects" element={<MyProjects />}/>

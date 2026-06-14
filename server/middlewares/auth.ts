@@ -5,7 +5,6 @@ import {StatusCodes} from 'http-status-codes'
 
 console.log('f')
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("Protect middleware hit for:", req.url); 
     try {
         const session = await auth.api.getSession({
             headers: fromNodeHeaders(req.headers)

@@ -1,20 +1,34 @@
+import api from '../config/axios';
+import { useSession } from '../lib/auth-client';
 import { Loader2Icon } from 'lucide-react';
 import React, { useState } from 'react'
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const Home = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const { data: session} = useSession();
+  const navigate = useNavigate();
   
   const onSubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();  
-
-    if(!input.trim()) return;
-
-    setLoading(true);
-    setTimeout(()=>{
+    try {
+      if(!session?.user){
+        return toast.error('Please sign in to create a project.');
+      }else if(!input.trim()){
+        return toast.error('Please enter a message.');
+      }
+      else{
+        setLoading(true);
+        const {data} = await api.post('/api/user/project',{initial_prompt: input});
+        setLoading(false);
+        navigate(`/projects/${data.projectId}`);
+      }
+    } catch (error:any) {
       setLoading(false);
-    },3000)
+      toast.error(error.message);
+    }
   }
   return (
       <section className="flex flex-col items-center text-white text-sm pb-20 px-4 font-poppins">

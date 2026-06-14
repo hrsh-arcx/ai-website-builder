@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { Project } from '../types'
-import { Loader2Icon, PlusIcon, TrashIcon } from 'lucide-react'
+import { Loader2Icon, PlusIcon} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { dummyProjects } from '../assets/assets'
 import Footer from '../components/Footer'
+import { toast } from 'sonner'
+import api from '../config/axios'
 
 const Community = () => {
   const [loading, setLoading] = useState(true)
@@ -11,15 +12,14 @@ const Community = () => {
   const navigate = useNavigate();
   
   const fetchProjects = async () => {
-    setProjects(dummyProjects)
-
-    setTimeout(()=>{
-      setLoading(false)
-    },1000)
-  }
-
-  const DeleteProject = (projectId: string) => {
-    setProjects((prevProjects) => prevProjects.filter((project) => project.id !== projectId));
+   try {
+    const {data} = await api.get(`/api/project/published`);
+    setProjects(data.projects);
+    setLoading(false);
+   } catch (error:any) {
+    toast.error(error);
+    console.log(error);
+   }
   }
 
   useEffect(()=>{

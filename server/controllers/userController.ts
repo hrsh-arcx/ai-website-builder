@@ -19,10 +19,7 @@ export const getUserCredits = async (req: Request, res: Response) => {
                 id: userId
             }
         })
-        console.log('Credits call made');
-        console.log(user?.credits);
-
-
+        
         res.json({credits: user?.credits})
     } catch (error:any) {
         return res
@@ -169,6 +166,22 @@ export const createUserProject = async (req: Request, res: Response) => {
         })
 
         const code = websiteCodeResponse.choices[0].message.content || '';
+        if(!code){
+            await prisma.conversation.create({
+                data: {
+                    role : 'assistant',
+                    projectId: project.id,
+                    content: "I couldn't generate a website based on your prompt. Please try again."
+                }
+            })
+            await prisma.user.update({
+                where: { id: userId },
+                data: { credits: { increment: 5 } }
+            })
+            return;
+        }
+
+
         await prisma.conversation.create({
             data: {
                 role : 'assistant',

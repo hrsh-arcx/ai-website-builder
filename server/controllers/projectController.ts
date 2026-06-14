@@ -31,13 +31,11 @@ export const makeRevision = async (req: Request, res: Response) => {
         }
 
         if(!projectId || !requestedChange){
-            const {initial_prompt} = req.body;
-            if(!initial_prompt){
-                return res
-                        .status(StatusCodes.BAD_REQUEST)
-                        .json({message: 'Invalid project details or prompt not provided'})
-            }
+            return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({message: 'Invalid project details or prompt not provided', projectId, requestedChange})
         }
+
         if(user.credits <5){
             return res
                     .status(StatusCodes.FORBIDDEN)
@@ -139,6 +137,22 @@ export const makeRevision = async (req: Request, res: Response) => {
         })
 
         const code = websiteCodeResponse.choices[0].message.content || '';
+        if(!code){
+            await prisma.conversation.create({
+                data: {
+                    role : 'assistant',
+                    projectId: project.id,
+                    content: "I couldn't generate a website based on your prompt. Please try again."
+                }
+            })
+            await prisma.user.update({
+                where: { id: userId },
+                data: { credits: { increment: 5 } }
+            })
+            return;
+        }
+
+
         await prisma.conversation.create({
             data: {
                 role : 'assistant',
@@ -169,7 +183,7 @@ export const makeRevision = async (req: Request, res: Response) => {
             }
         })
 
-        res.json({message: 'Changes made successfully'})
+        res.json({message: 'Making requested changes...'});
 
     } catch (error:any) {
         if(userId){
@@ -245,7 +259,7 @@ export const rollbackVersion = async (req: Request, res: Response) => {
                 content: `I have rolled back to selected version. Preview!`
             }
         })
-        res.json({message: 'Version rolled back successfully'})
+        res.json({message: 'Rolling back to selected version...'})
     } catch (error:any) {
         return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)  
