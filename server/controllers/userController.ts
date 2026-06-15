@@ -351,3 +351,68 @@ export const togglePublish = async (req: Request, res: Response) => {
 }
 
 export const purchaseCredits = async (req: Request, res: Response) => {}
+
+export const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const userId = req.userId;
+        if(!userId){
+            return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({message: 'Unauthorized user'})
+        }
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            }
+        })
+        if(!user){
+            return res
+                    .status(StatusCodes.NOT_FOUND)
+                    .json({message: 'User not found'})
+        }
+
+        const projects = await prisma.websiteProject.findMany({
+            where: {
+                userId : userId
+            }
+        })
+
+        const projectIds = projects.map(project => project.id);
+
+        await prisma.conversation.deleteMany({
+            where: {
+                projectId: {
+                    in: projectIds
+                }
+            }
+        })
+        
+        await prisma.version.deleteMany({
+            where: {
+                projectId: {
+                    in: projectIds
+                }
+            }
+        })
+
+        await prisma.websiteProject.deleteMany({
+            where: {
+                id: {
+                    in: projectIds
+                }
+            }
+        })
+
+        await prisma.user.delete({
+            where: {
+                id: userId
+            }
+        })
+
+        res.json({message: 'User deleted successfully'})
+    } catch (error:any) {
+        return res
+                .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                .json({message: error.message})
+    }
+}

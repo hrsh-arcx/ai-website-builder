@@ -296,10 +296,9 @@ export const deleteProject = async (req: Request, res: Response) => {
                     .json({message: 'Project not found'})
         }
 
-        await prisma.websiteProject.delete({
+        await prisma.conversation.deleteMany({
             where: {
-                id: projectId as string,
-                userId
+                projectId: projectId as string
             }
         })
 
@@ -309,9 +308,10 @@ export const deleteProject = async (req: Request, res: Response) => {
             }
         })
 
-        await prisma.conversation.deleteMany({
+        await prisma.websiteProject.delete({
             where: {
-                projectId: projectId as string
+                id: projectId as string,
+                userId
             }
         })
 
@@ -462,6 +462,29 @@ export const saveProjectCode = async (req: Request, res: Response) => {
     } catch (error:any) {
         return res
                 .status(StatusCodes.INTERNAL_SERVER_ERROR)  
+                .json({message: error.message})
+    }
+}
+
+
+//get project count
+export const getProjectCount = async (req: Request, res: Response) => {
+    try {
+        const userId = req.userId;
+        if(!userId){
+            return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({message: 'Unauthorized user'})
+        }
+        const count = await prisma.websiteProject.count({
+            where: {
+                userId
+            }
+        })
+        res.json({count})
+    } catch (error:any) {
+        return res
+                .status(StatusCodes.INTERNAL_SERVER_ERROR)
                 .json({message: error.message})
     }
 }
