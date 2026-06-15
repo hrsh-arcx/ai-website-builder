@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, AlertTriangle, KeyRound } from 'lucide-react';
-import { useSession, authClient, deleteUser } from '../lib/auth-client';
+import { useSession, authClient } from '../lib/auth-client';
 import { toast } from 'sonner';
 import api from '../config/axios';
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { PricingPlan } from '../types'
 import { appPlans } from '../assets/assets'
 import Footer from '../components/Footer'

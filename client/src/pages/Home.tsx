@@ -2,7 +2,7 @@ import api from '../config/axios';
 import { useSession } from '../lib/auth-client';
 import { Loader2Icon } from 'lucide-react';
 import React, { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const Home = () => {
