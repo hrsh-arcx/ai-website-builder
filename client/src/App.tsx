@@ -12,6 +12,7 @@ import AuthModal from './components/AuthModal'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import { Toaster } from 'sonner'
+import Loading from './pages/Loading'
 
 const App = () => {
   const {pathname} = useLocation();
@@ -41,6 +42,7 @@ const App = () => {
         <Route path="/view/:projectId" element={<View />}/>
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/loading" element={<Loading />} />
       </Routes>
       <AuthModal 
         isOpen={isAuthModalOpen} 

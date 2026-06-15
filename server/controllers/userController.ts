@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import {StatusCodes} from 'http-status-codes'
 import prisma from "../lib/prisma.js";
 import openai from "../config/openai.js";
-
+import Stripe from 'stripe';
 
 //Get User Credits
 export const getUserCredits = async (req: Request, res: Response) => {
@@ -350,7 +350,74 @@ export const togglePublish = async (req: Request, res: Response) => {
     }
 }
 
-export const purchaseCredits = async (req: Request, res: Response) => {}
+export const purchaseCredits = async (req: Request, res: Response) => {
+    try {
+        interface Plan{
+            credits: number;
+            amount: number;
+        }
+
+        const plans = {
+            basic : {credits: 100, amount: 5},
+            pro : {credits: 400, amount: 15},
+            enterprise : {credits: 1000, amount: 25}
+        }
+
+        const userId = req.userId;
+        const {planId} = req.body as {planId: keyof typeof plans};
+        const origin = req.headers.origin as string;
+        if(!userId){
+            return res
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json({message: 'Unauthorized user'})
+        }
+
+        const plan: Plan = plans[planId];
+        if(!plan){
+            return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json({message: 'Plan not found'})
+        }
+
+        const transaction = await prisma.transaction.create({
+            data: {
+                userId: userId!,
+                planId: req.body.planId,
+                amount: plan.amount,
+                credits: plan.credits
+            }
+        })
+
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+        const session = await stripe.checkout.sessions.create({
+            success_url: `${origin}/loading`,
+            cancel_url: `${origin}`,
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: `AISiteBuilder - ${plan.credits} Credits`,
+                        },
+                        unit_amount: Math.floor(transaction.amount) * 100,
+                    },
+                    quantity: 1
+                },
+            ],
+            mode: 'payment',
+            metadata: {
+                transactionId: transaction.id,
+                appId: 'ai-site-builder'
+            },
+            expires_at : Math.floor(Date.now() / 1000) + 30 * 60,
+        });
+        res.json({payment_link : session.url})
+    } catch (error:any) {
+        return res
+                .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                .json({message: error.message})
+    }
+}
 
 export const deleteUser = async (req: Request, res: Response) => {
     try {

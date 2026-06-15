@@ -158,9 +158,13 @@ const Projects = () => {
               {isSaving ? <Loader2Icon className='animate-spin' size={16}/> : <SaveIcon size={16}/>} 
               Save
             </button >
-            <Link to={`/preview/${projectId}`} target='_blank' className="flex items-center gap-2 px-4 py-1 rounded sm:rounded-sm border border-gray-700 hover:border-gray-500 transition-colors">
-              <FullscreenIcon size={16}/>Preview
-            </Link>
+            <button 
+              onClick={() => window.open(`/preview/${projectId}`, '_blank', 'noopener,noreferrer')} 
+              className="flex items-center gap-2 px-4 py-1 rounded sm:rounded-sm border border-gray-700 hover:border-gray-500 transition-colors"
+            >
+              <FullscreenIcon size={16}/>
+              Preview
+            </button>
             <button onClick={downloadFile} className='bg-linear-to-br from-blue-700 to-blue-600 hover:from-blue-600 hover:to-blue-500 text-white px-3.5 py-1 flex items-center gap-2 rounded sm:rounded-sm transition-colors'>
               <ArrowBigDownDash size={16}/> Download
             </button>
