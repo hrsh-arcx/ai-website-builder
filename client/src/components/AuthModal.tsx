@@ -121,16 +121,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultView = 's
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-8 pt-6 border-t border-white/5 text-center">
           <button 
             type="button"
             onClick={() => {
               setView(view === 'signin' ? 'signup' : 'signin');
               setError('');
             }}
-            className="text-sm text-gray-400 hover:text-white transition-colors"
+            className="group flex items-center justify-center gap-1.5 text-sm w-full py-2 rounded-lg transition-all duration-300 hover:bg-white/5 active:bg-white/10"
           >
-            {view === 'signup' ? 'Already have an account? Log in' : "Don't have an account? Sign up"}
+            <span className="text-white group-hover:text-gray-300 transition-colors">
+              {view === 'signup' ? 'Already have an account?' : "Don't have an account?"}
+            </span>
+            <span className="text-purple-400 font-semibold group-hover:text-purple-300 underline underline-offset-4 decoration-purple-500/30 transition-colors">
+              {view === 'signup' ? 'Log in' : 'Sign up'}
+            </span>
           </button>
         </div>
       </div>

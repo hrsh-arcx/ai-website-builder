@@ -136,7 +136,7 @@ const Projects = () => {
         <div className='flex max-sm:flex-col sm:items-center gap-4 px-4 py-2 no-scrollbar'>
           {/*Left*/}
           <div className='flex items-center gap-2 sm:min-w-90 text-nowrap'>
-            <img onClick={() => navigate('/')} src="/public/favicon.svg" alt="Logo" className='h-6 cursor-pointer'/>
+            <img onClick={() => navigate('/')} src="/favicon.svg" alt="Logo" className='h-6 cursor-pointer'/>
             <div className='max-w-64 sm:max-w-xs'>
               <p className='text-sm text-medium capitalize truncate'>{project.name}</p>
               <p className='text-gray-400 text-sm -mt-0.5'>Previewing the latest version</p>
